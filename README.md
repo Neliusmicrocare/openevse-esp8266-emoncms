@@ -2,10 +2,10 @@
 OpenEVSE posting to emoncms via ESP8266
 
 
-Prequisites
+Prerequisites
 ===========
 
-esp-open-sdk https://github.com/pfalcon/esp-open-sdk
+esp-open-sdk: https://github.com/pfalcon/esp-open-sdk
 
 ## Debian wheezy
 
