@@ -21,6 +21,7 @@ $ git clone --recursive https://github.com/pfalcon/esp-open-sdk.git
 $ unset LD_LIBRARY_PATH
 $ make STANDALONE=n
 ```
+Go get yourself a big cup of coffee... esp-open-sdk takes a looonnngg time to build.
 
 Set path to esp-open-sdk and esptool
 
