@@ -1,0 +1,7 @@
+
+v0.0.2 SCL 20150924
+- volts & amps getting corrupted -> hardcoded to 16 after running several hours.
+  no idea why. Change variables to strings to get rid of itoa()/ltoa()
+
+v0.0.1 SCL 20150924
+- initial checkin

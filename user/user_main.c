@@ -50,68 +50,12 @@ static void user_procTask(os_event_t *events);
 static volatile os_timer_t some_timer;
 
 
-int amp = 0;
-int32_t volt = 0;
-int temp1 = 0;
-int temp2 = 0;
-int temp3 = 0;
-int pilot = 0;
-
-char* ICACHE_FLASH_ATTR ltoa( long value, char *string, int radix )
-{
-  char tmp[33];
-  char *tp = tmp;
-  long i;
-  unsigned long v;
-  int sign;
-  char *sp;
-
-  if ( string == NULL )
-  {
-    return 0 ;
-  }
-
-  if (radix > 36 || radix <= 1)
-  {
-    return 0 ;
-  }
-
-  sign = (radix == 10 && value < 0);
-  if (sign)
-  {
-    v = -value;
-  }
-  else
-  {
-    v = (unsigned long)value;
-  }
-
-  while (v || tp == tmp)
-  {
-    i = v % radix;
-    v = v / radix;
-    if (i < 10)
-      *tp++ = i+'0';
-    else
-      *tp++ = i + 'a' - 10;
-  }
-
-  sp = string;
-
-  if (sign)
-    *sp++ = '-';
-  while (tp > tmp)
-    *sp++ = *--tp;
-  *sp = 0;
-
-  return string;
-}
-
-char* ICACHE_FLASH_ATTR itoa( int value, char *string, int radix )
-{
-  return ltoa( value, string, radix ) ;
-}
-
+char pilot[5];
+char amp[10];
+char volt[10];
+char temp1[5];
+char temp2[5];
+char temp3[5];
 
 // convert decimal string to int32_t
 int32 ICACHE_FLASH_ATTR dtoi32(const char *s)
@@ -156,11 +100,17 @@ void ICACHE_FLASH_ATTR some_timerfunc(void *arg)
   }
   else {
     if (tCnt == 0) {
+      *volt = 0;
+      *amp = 0;
+      *pilot = 0;
+      *temp1 = 0;
+      *temp2 = 0;
+      *temp3 = 0;
       rapiSendCmd("$GE");
     }
     else if (tCnt == 1) {
       if (rapiTokenCnt == 3) {
-	pilot = atoi(rapiTokens[1]);
+	os_strcpy(pilot,rapiTokens[1]);
       }
     }
     else if (tCnt == 2) {
@@ -168,9 +118,9 @@ void ICACHE_FLASH_ATTR some_timerfunc(void *arg)
     }
     else if (tCnt == 3) {
       if (rapiTokenCnt == 3) {
-	amp = atoi(rapiTokens[1]);
-	volt = dtoi32(rapiTokens[2]);
-	if (volt < 0) volt = 0;
+	os_strcpy(amp,rapiTokens[1]);
+	os_strcpy(volt,rapiTokens[2]);
+	if (*volt == '-') *volt = 0;
       }
     }
     else if (tCnt == 4) {
@@ -178,21 +128,21 @@ void ICACHE_FLASH_ATTR some_timerfunc(void *arg)
     }
     else if (tCnt == 5) {
       if (rapiTokenCnt == 4) {
-	temp1 = atoi(rapiTokens[1]);
-	temp2 = atoi(rapiTokens[2]);
-	temp3 = atoi(rapiTokens[3]);
+	os_strcpy(temp1,rapiTokens[1]);
+	os_strcpy(temp2,rapiTokens[2]);
+	os_strcpy(temp3,rapiTokens[3]);
       }
     }
     else if (tCnt == 6) {
-      char req[300],s[80];
+      char req[300];
 
 #ifdef dbgfakedata
-      volt = 238945;
-      temp1 = 136;
-      temp2 = 235;
-      temp3 = 335;
-      amp = 16023;
-      pilot = 16;
+      os_strcpy(volt,238945);
+      os_strcpy(temp1,136);
+      os_strcpy(temp2,235);
+      os_strcpy(temp3,335);
+      os_strcpy(amp,16023);
+      os_strcpy(pilot,16);
 #endif
 
       os_strcpy(req,url);
@@ -203,37 +153,31 @@ void ICACHE_FLASH_ATTR some_timerfunc(void *arg)
       os_strcat(req,"&json={");
       
       os_strcat(req,inputID_AMP);
-      itoa(amp,s,10);
-      os_strcat(req,s);
+      os_strcat(req,amp);
       
       os_strcat(req,",");
       os_strcat(req,inputID_PILOT);
-      itoa(pilot,s,10);
-      os_strcat(req,s);
+      os_strcat(req,pilot);
       
-      if (volt >= 0) {
+      if (*volt) {
 	os_strcat(req,",");
 	os_strcat(req,inputID_VOLT);
-	ltoa(volt,s,10);
-	os_strcat(req,s);
+	os_strcat(req,volt);
       }
-      if (temp1 > 0) {
+      if (*temp1 > '0') {
 	os_strcat(req,",");
 	os_strcat(req,inputID_TEMP1);
-	itoa(temp1,s,10);
-	os_strcat(req,s);
+	os_strcat(req,temp1);
       }
-      if (temp2 > 0) {
+      if (*temp2 > '0') {
 	os_strcat(req,",");
 	os_strcat(req,inputID_TEMP2);
-	itoa(temp2,s,10);
-	os_strcat(req,s);
+	os_strcat(req,temp2);
       }
-      if (temp3 > 0) {
+      if (*temp3 >'0') {
 	os_strcat(req,",");
 	os_strcat(req,inputID_TEMP3);
-	itoa(temp3,s,10);
-	os_strcat(req,s);
+	os_strcat(req,temp3);
       }
       os_strcat(req,"}");
       
