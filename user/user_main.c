@@ -195,47 +195,47 @@ void ICACHE_FLASH_ATTR some_timerfunc(void *arg)
       pilot = 16;
 #endif
 
-      strcpy(req,url);
-      strcat(req,"node=");
-      strcat(req,node);
-      strcat(req,"&apikey=");
-      strcat(req,privateKey);
-      strcat(req,"&json={");
+      os_strcpy(req,url);
+      os_strcat(req,"node=");
+      os_strcat(req,node);
+      os_strcat(req,"&apikey=");
+      os_strcat(req,privateKey);
+      os_strcat(req,"&json={");
       
-      strcat(req,inputID_AMP);
+      os_strcat(req,inputID_AMP);
       itoa(amp,s,10);
-      strcat(req,s);
+      os_strcat(req,s);
       
-      strcat(req,",");
-      strcat(req,inputID_PILOT);
+      os_strcat(req,",");
+      os_strcat(req,inputID_PILOT);
       itoa(pilot,s,10);
-      strcat(req,s);
+      os_strcat(req,s);
       
       if (volt >= 0) {
-	strcat(req,",");
-	strcat(req,inputID_VOLT);
+	os_strcat(req,",");
+	os_strcat(req,inputID_VOLT);
 	ltoa(volt,s,10);
-	strcat(req,s);
+	os_strcat(req,s);
       }
       if (temp1 > 0) {
-	strcat(req,",");
-	strcat(req,inputID_TEMP1);
+	os_strcat(req,",");
+	os_strcat(req,inputID_TEMP1);
 	itoa(temp1,s,10);
-	strcat(req,s);
+	os_strcat(req,s);
       }
       if (temp2 > 0) {
-	strcat(req,",");
-	strcat(req,inputID_TEMP2);
+	os_strcat(req,",");
+	os_strcat(req,inputID_TEMP2);
 	itoa(temp2,s,10);
-	strcat(req,s);
+	os_strcat(req,s);
       }
       if (temp3 > 0) {
-	strcat(req,",");
-	strcat(req,inputID_TEMP3);
+	os_strcat(req,",");
+	os_strcat(req,inputID_TEMP3);
 	itoa(temp3,s,10);
-	strcat(req,s);
+	os_strcat(req,s);
       }
-      strcat(req,"}");
+      os_strcat(req,"}");
       
 #ifdef dbghttp
     os_printf("\n%s\n",req);
@@ -266,7 +266,7 @@ user_init()
     
   //Set ap settings
   stationConf.bssid_set = 0; //need not check MAC address of AP
-os_memcpy(&stationConf.ssid, ssid, 32);
+  os_memcpy(&stationConf.ssid, ssid, 32);
   os_memcpy(&stationConf.password, pass, 64);
   wifi_station_set_config(&stationConf);
 
