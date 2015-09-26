@@ -23,7 +23,8 @@
 #define RAPI_MAX_TOKENS 5
 
 extern char *rapiTokens[RAPI_MAX_TOKENS];
-int rapiTokenCnt;
+extern int rapiTokenCnt;
 
 void ICACHE_FLASH_ATTR rapiInit();
-int ICACHE_FLASH_ATTR rapiSendCmd(const char *cmdstr);
+void ICACHE_FLASH_ATTR rapiSendCmd(const char *cmdstr);
+int ICACHE_FLASH_ATTR rapiProcessReply();

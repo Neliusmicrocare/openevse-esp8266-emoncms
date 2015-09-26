@@ -64,7 +64,7 @@ void ICACHE_FLASH_ATTR rapiInit()
 }
 
 
-void ICACHE_FLASH_ATTR _sendCmd(const char *cmdstr)
+void ICACHE_FLASH_ATTR rapiSendCmd(const char *cmdstr)
 {
   uart0_sendStr(cmdstr);
   const char *s = cmdstr;
@@ -78,12 +78,14 @@ void ICACHE_FLASH_ATTR _sendCmd(const char *cmdstr)
   uart0_sendStr(respBuf);
 
   *respBuf = 0;
+  rapiTokenCnt = 0;
 }
 
 
 void ICACHE_FLASH_ATTR tokenize()
 {
   char *s = respBuf;
+  rapiTokenCnt = 0;
   while (*s) {
     rapiTokens[rapiTokenCnt++] = s++;
     if (rapiTokenCnt == RAPI_MAX_TOKENS) break;
@@ -99,14 +101,12 @@ void ICACHE_FLASH_ATTR tokenize()
  * 1=$NK
  * 2=invalid RAPI response
 */
-int ICACHE_FLASH_ATTR rapiSendCmd(const char *cmdstr)
+int ICACHE_FLASH_ATTR rapiProcessReply()
 {
  start:
   rapiTokenCnt = 0;
   *respBuf = 0;
 
-  int rc;
-  _sendCmd(cmdstr);
   int bufpos = 0;
   uint32 mss = system_get_time();
   do {
@@ -117,7 +117,7 @@ int ICACHE_FLASH_ATTR rapiSendCmd(const char *cmdstr)
     else {
       char c = rxc;
 
-      if (!bufpos && c != '$') {
+      if (!bufpos && (c != '$')) {
 	// wait for start character
 	continue;
       }
@@ -126,8 +126,10 @@ int ICACHE_FLASH_ATTR rapiSendCmd(const char *cmdstr)
 	tokenize();
       }
       else {
+	if (c == '$') bufpos = 0;
 	respBuf[bufpos++] = c;
-	if (bufpos >= (RAPI_BUFLEN-1)) return -2;
+	// buffer full and no termination 
+	if (bufpos >= (RAPI_BUFLEN-1)) goto start;
       }
     }
   } while (!rapiTokenCnt && ((system_get_time() - mss) < RAPI_TIMEOUT_US));
@@ -152,7 +154,6 @@ int ICACHE_FLASH_ATTR rapiSendCmd(const char *cmdstr)
       goto start;
     }
     else if (!strcmp(respBuf,"$ST")) { // async EVSE state transition
-      // placeholder.. no action et
       goto start;
     }
     else {
