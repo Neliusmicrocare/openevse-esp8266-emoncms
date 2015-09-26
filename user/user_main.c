@@ -57,28 +57,6 @@ char temp1[5];
 char temp2[5];
 char temp3[5];
 
-// convert decimal string to int32_t
-int32 ICACHE_FLASH_ATTR dtoi32(const char *s)
-{
-  int32 i = 0;
-  int8 sign;
-  if (*s == '-') {
-    sign = -1;
-    s++;
-  }
-  else {
-    sign = 0;
-  }
-  while (*s) {
-    i *= 10;
-    i += *(s++) - '0';
-  }
-
-  if (sign < 0) i = -i;
-  return i;
-}
-
-
 void httpCallback(char * response, int http_status, char * full_response)
 {
 #ifdef dbghttp
@@ -109,6 +87,7 @@ void ICACHE_FLASH_ATTR some_timerfunc(void *arg)
       rapiSendCmd("$GE");
     }
     else if (tCnt == 1) {
+      rapiProcessReply();
       if (rapiTokenCnt == 3) {
 	os_strcpy(pilot,rapiTokens[1]);
       }
@@ -117,6 +96,7 @@ void ICACHE_FLASH_ATTR some_timerfunc(void *arg)
       rapiSendCmd("$GG");
     }
     else if (tCnt == 3) {
+      rapiProcessReply();
       if (rapiTokenCnt == 3) {
 	os_strcpy(amp,rapiTokens[1]);
 	os_strcpy(volt,rapiTokens[2]);
@@ -127,6 +107,7 @@ void ICACHE_FLASH_ATTR some_timerfunc(void *arg)
       rapiSendCmd("$GP");
     }
     else if (tCnt == 5) {
+      rapiProcessReply();
       if (rapiTokenCnt == 4) {
 	os_strcpy(temp1,rapiTokens[1]);
 	os_strcpy(temp2,rapiTokens[2]);
@@ -137,12 +118,13 @@ void ICACHE_FLASH_ATTR some_timerfunc(void *arg)
       char req[300];
 
 #ifdef dbgfakedata
-      os_strcpy(volt,238945);
-      os_strcpy(temp1,136);
-      os_strcpy(temp2,235);
-      os_strcpy(temp3,335);
-      os_strcpy(amp,16023);
-      os_strcpy(pilot,16);
+      os_strcpy(node,"99");
+      os_strcpy(volt,"238945");
+      os_strcpy(amp,"16023");
+      os_strcpy(pilot,"16");
+      os_strcpy(temp1,"136");
+      os_strcpy(temp2,"235");
+      os_strcpy(temp3,"335");
 #endif
 
       os_strcpy(req,url);
