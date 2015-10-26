@@ -70,6 +70,16 @@ void httpCallback(char * response, int http_status, char * full_response)
 
 int tCnt;
 
+int isIntegerString(const char *s)
+{
+  while (*s) {
+    if ((*s != '-') && !isdigit(*s)) return 0;
+    s++;
+  }
+
+  return 1;
+}
+
 void ICACHE_FLASH_ATTR some_timerfunc(void *arg)
 {
   tCnt++;
@@ -79,7 +89,7 @@ void ICACHE_FLASH_ATTR some_timerfunc(void *arg)
   else {
     if (tCnt == 0) {
       *volt = 0;
-      *amp = 0;
+      os_strcpy(amp,"0");
       *pilot = 0;
       *temp1 = 0;
       *temp2 = 0;
@@ -87,8 +97,8 @@ void ICACHE_FLASH_ATTR some_timerfunc(void *arg)
       rapiSendCmd("$GE");
     }
     else if (tCnt == 1) {
-      rapiProcessReply();
-      if (rapiTokenCnt == 3) {
+      rapiProcessReply(RAPI_TIMEOUT_US);
+      if ((rapiTokenCnt == 3) && isIntegerString(rapiTokens[1])) {
 	os_strcpy(pilot,rapiTokens[1]);
       }
     }
@@ -96,22 +106,32 @@ void ICACHE_FLASH_ATTR some_timerfunc(void *arg)
       rapiSendCmd("$GG");
     }
     else if (tCnt == 3) {
-      rapiProcessReply();
+      rapiProcessReply(RAPI_TIMEOUT_US);
       if (rapiTokenCnt == 3) {
-	os_strcpy(amp,rapiTokens[1]);
-	os_strcpy(volt,rapiTokens[2]);
-	if (*volt == '-') *volt = 0;
+	if (isIntegerString(rapiTokens[1])) {
+	    os_strcpy(amp,rapiTokens[1]);
+	}
+	if (isIntegerString(rapiTokens[2])) {
+	  os_strcpy(volt,rapiTokens[2]);
+	  if (*volt == '-') *volt = 0;
+	}
       }
     }
     else if (tCnt == 4) {
       rapiSendCmd("$GP");
     }
     else if (tCnt == 5) {
-      rapiProcessReply();
+      rapiProcessReply(RAPI_TIMEOUT_US);
       if (rapiTokenCnt == 4) {
-	os_strcpy(temp1,rapiTokens[1]);
-	os_strcpy(temp2,rapiTokens[2]);
-	os_strcpy(temp3,rapiTokens[3]);
+	if (isIntegerString(rapiTokens[1])) {
+	  os_strcpy(temp1,rapiTokens[1]);
+	}
+	if (isIntegerString(rapiTokens[2])) {
+	  os_strcpy(temp2,rapiTokens[2]);
+	}
+	if (isIntegerString(rapiTokens[3])) {
+	  os_strcpy(temp3,rapiTokens[3]);
+	}
       }
     }
     else if (tCnt == 6) {
@@ -136,10 +156,12 @@ void ICACHE_FLASH_ATTR some_timerfunc(void *arg)
       
       os_strcat(req,inputID_AMP);
       os_strcat(req,amp);
-      
-      os_strcat(req,",");
-      os_strcat(req,inputID_PILOT);
-      os_strcat(req,pilot);
+
+      if (*pilot) {
+	os_strcat(req,",");
+	os_strcat(req,inputID_PILOT);
+	os_strcat(req,pilot);
+      }
       
       if (*volt) {
 	os_strcat(req,",");

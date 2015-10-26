@@ -66,6 +66,7 @@ void ICACHE_FLASH_ATTR rapiInit()
 
 void ICACHE_FLASH_ATTR rapiSendCmd(const char *cmdstr)
 {
+  rapiProcessReply(0); // clear out rx buffer
   uart0_sendStr(cmdstr);
   const char *s = cmdstr;
   uint8_t chk = 0;
@@ -101,7 +102,7 @@ void ICACHE_FLASH_ATTR tokenize()
  * 1=$NK
  * 2=invalid RAPI response
 */
-int ICACHE_FLASH_ATTR rapiProcessReply()
+int ICACHE_FLASH_ATTR rapiProcessReply(uint32 timeout)
 {
  start:
   rapiTokenCnt = 0;
@@ -132,7 +133,7 @@ int ICACHE_FLASH_ATTR rapiProcessReply()
 	if (bufpos >= (RAPI_BUFLEN-1)) goto start;
       }
     }
-  } while (!rapiTokenCnt && ((system_get_time() - mss) < RAPI_TIMEOUT_US));
+  } while (!rapiTokenCnt && ((system_get_time() - mss) < timeout));
   
 /*  
     dbgprint("\n\rTOKENCNT: ");dbgprintln(rapiTokenCnt);

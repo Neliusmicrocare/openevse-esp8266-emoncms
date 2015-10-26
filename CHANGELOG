@@ -1,4 +1,8 @@
 
+v0.0.4 SCL 20151026
+- added isIntegerString() - don't save any parameters unless they are integer
+- call rapiProcessReply(0) before sending commands to clear out rx buffer
+	
 v0.0.3 SCL 20150926
 - try again to fix corrupted data after several hours
   -> split out rapiProcessReply()

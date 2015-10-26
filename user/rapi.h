@@ -18,7 +18,7 @@
 
 #pragma once
 
-#define RAPI_TIMEOUT_US 250000
+#define RAPI_TIMEOUT_US 250000ul
 #define RAPI_BUFLEN 32
 #define RAPI_MAX_TOKENS 5
 
@@ -27,4 +27,4 @@ extern int rapiTokenCnt;
 
 void ICACHE_FLASH_ATTR rapiInit();
 void ICACHE_FLASH_ATTR rapiSendCmd(const char *cmdstr);
-int ICACHE_FLASH_ATTR rapiProcessReply();
+int ICACHE_FLASH_ATTR rapiProcessReply(uint32 timeout);
